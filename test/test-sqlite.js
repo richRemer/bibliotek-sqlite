@@ -56,6 +56,27 @@ describe("Database", () => {
       expect(db.run.calledOnce).to.be(true);
       expect(db.run.calledWith(sql)).to.be(true);
     });
+
+    it("should resolve with .lastID", async () => {
+      const db = Database.memory();
+      await db.run("create table t (id int, key text)");
+      await db.run("insert into t values (null, 'foo')");
+      const result = await db.run("insert into t values (null, 'bar')");
+
+      expect(result).to.be.an("object");
+      expect(result.lastID).to.be(2);
+    });
+
+    it("should resolve with .changes", async () => {
+      const db = Database.memory();
+      await db.run("create table t (id int, key text)");
+      await db.run("insert into t values (1, 'foo')");
+      await db.run("insert into t values (3, 'bar')");
+      const result = await db.run("update t set key = 'new'");
+
+      expect(result).to.be.an("object");
+      expect(result.changes).to.be(2);
+    });
   });
 
   describe(".each(sql)", () => {
