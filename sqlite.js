@@ -1,7 +1,7 @@
 import Sqlite3 from "sqlite3";
 import synch from "@bibliotek/synch";
 
-export class Sqlite {
+export class Database {
   constructor(db) {
     if (typeof db === "string") {
       db = new Sqlite3.Database(db);
@@ -11,11 +11,11 @@ export class Sqlite {
   }
 
   static memory() {
-    return new Sqlite(":memory:");
+    return new Database(":memory:");
   }
 
   static disk() {
-    return new Sqlite("");
+    return new Database("");
   }
 
   static get Statement() {
@@ -84,7 +84,7 @@ export class Sqlite {
   }
 }
 
-class Statement {
+export class Statement {
   constructor(stmt) {
     this.stmt = stmt;
   }

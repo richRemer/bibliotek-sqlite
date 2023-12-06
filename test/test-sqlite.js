@@ -1,13 +1,13 @@
 import expect from "expect.js";
 import sinon from "sinon";
 import Sqlite3 from "sqlite3";
-import {Sqlite} from "@bibliotek/sqlite";
+import {Database, Statement} from "@bibliotek/sqlite";
 
-describe("Sqlite", () => {
+describe("Database", () => {
   describe("constructor(db)", () => {
     it("should initialize db from file path", async () => {
-      const db = new Sqlite(":memory:");
-      expect(db).to.be.a(Sqlite);
+      const db = new Database(":memory:");
+      expect(db).to.be.a(Database);
       expect(db.db).to.be.a(Sqlite3.Database);
       expect(db.db.filename).to.be(":memory:");
       await db.close();
@@ -15,22 +15,22 @@ describe("Sqlite", () => {
 
     it("should use database if provided", async () => {
       const sqlite = {};
-      const db = new Sqlite(sqlite);
+      const db = new Database(sqlite);
       expect(db.db).to.be(sqlite);
     });
   });
 
-  describe("Sqlite.memory()", () => {
+  describe("Database.memory()", () => {
     it("should return in-memory DB", async () => {
-      const db = Sqlite.memory();
+      const db = Database.memory();
       expect(db.db.filename).to.be(":memory:");
       await db.close();
     });
   });
 
-  describe("Sqlite.disk()", () => {
+  describe("Database.disk()", () => {
     it("should return on-disk temp DB", async () => {
-      const db = Sqlite.disk();
+      const db = Database.disk();
       expect(db.db.filename).to.be("");
       await db.close();
     });
@@ -39,7 +39,7 @@ describe("Sqlite", () => {
   describe(".close()", () => {
     it("should close the DB", async () => {
       const db = {close: sinon.spy(fn => fn())};
-      const sqlite = new Sqlite(db);
+      const sqlite = new Database(db);
 
       await sqlite.close();
       expect(db.close.calledOnce).to.be(true);
@@ -49,7 +49,7 @@ describe("Sqlite", () => {
   describe(".run(sql)", () => {
     it("should run query on the DB", async () => {
       const db = {run: sinon.spy((_, fn) => fn())};
-      const sqlite = new Sqlite(db);
+      const sqlite = new Database(db);
       const sql = "select 1";
 
       await sqlite.run(sql);
@@ -62,7 +62,7 @@ describe("Sqlite", () => {
     let sqlite;
 
     beforeEach(async () => {
-      sqlite = Sqlite.memory();
+      sqlite = Database.memory();
       await sqlite.run("create table t (id int, key text)");
       await sqlite.run("insert into t values (1, 'foo')");
       await sqlite.run("insert into t values (2, 'bar')");
@@ -89,7 +89,7 @@ describe("Sqlite", () => {
     let sqlite;
 
     beforeEach(async () => {
-      sqlite = Sqlite.memory();
+      sqlite = Database.memory();
       await sqlite.run("create table t (id int, key text)");
       await sqlite.run("insert into t values (1, 'foo')");
       await sqlite.run("insert into t values (2, 'bar')");
@@ -106,21 +106,21 @@ describe("Sqlite", () => {
 
   describe(".prepare(sql)", () => {
     it("should return a prepared statment", async () => {
-      const sqlite = Sqlite.memory();
+      const sqlite = Database.memory();
       await sqlite.run("create table t (i int, f text)");
 
       const stmt = sqlite.prepare("select f from t where i = ?");
 
-      expect(stmt).to.be.a(Sqlite.Statement);
+      expect(stmt).to.be.a(Statement);
     });
   });
 });
 
-describe("Sqlite.Statement", () => {
+describe("Statement", () => {
   let sqlite, insert, select;
 
   beforeEach(async () => {
-    sqlite = Sqlite.memory();
+    sqlite = Database.memory();
     await sqlite.run("create table t (id int, key text)");
     insert = sqlite.prepare("insert into t values (?, ?)");
     select = sqlite.prepare("select key from t where id between ? and ? order by id");
