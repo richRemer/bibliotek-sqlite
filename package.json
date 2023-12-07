@@ -1,12 +1,13 @@
 {
   "name": "@bibliotek/sqlite",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Sqlite3 database using async/await",
   "type": "module",
   "exports": "./sqlite.js",
   "scripts": {
     "test": "mocha"
   },
+  "license": "MIT",
   "dependencies": {
     "@bibliotek/synch": "^0.0.1",
     "sqlite3": "^4.2.0"
