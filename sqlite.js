@@ -148,4 +148,7 @@ export class Statement {
       });
     });
   }
+
+  get lastID() { return this.stmt.lastID; }
+  get changes() { return this.stmt.changes; }
 }

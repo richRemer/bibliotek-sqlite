@@ -59,7 +59,7 @@ describe("Database", () => {
 
     it("should resolve with .lastID", async () => {
       const db = Database.memory();
-      await db.run("create table t (id int, key text)");
+      await db.run("create table t (id integer not null primary key autoincrement, key text)");
       await db.run("insert into t values (null, 'foo')");
       const result = await db.run("insert into t values (null, 'bar')");
 
@@ -138,13 +138,14 @@ describe("Database", () => {
 });
 
 describe("Statement", () => {
-  let sqlite, insert, select;
+  let sqlite, insert, select, update;
 
   beforeEach(async () => {
     sqlite = Database.memory();
-    await sqlite.run("create table t (id int, key text)");
+    await sqlite.run("create table t (id integer not null primary key autoincrement, key text)");
     insert = sqlite.prepare("insert into t values (?, ?)");
     select = sqlite.prepare("select key from t where id between ? and ? order by id");
+    update = sqlite.prepare("update t set key = 'none' where id > ?");
   });
 
   describe(".run(...params)", () => {
@@ -154,6 +155,22 @@ describe("Statement", () => {
 
       const row = await sqlite.get("select count(*) c from t");
       expect(row.c).to.be(2);
+    });
+
+    it("should set .lastID on statement", async () => {
+      await insert.run(null, "foo");
+      await insert.run(null, "bar");
+
+      expect(insert.lastID).to.be(2);
+    });
+
+    it("should set .changes on statement", async () => {
+      await insert.run(null, "foo");
+      await insert.run(null, "bar");
+      await insert.run(null, "baz");
+      await update.run(0);
+
+      expect(update.changes).to.be(3);
     });
   });
 
