@@ -77,6 +77,16 @@ describe("Database", () => {
       expect(result).to.be.an("object");
       expect(result.changes).to.be(2);
     });
+
+    it("should handle String instances", async () => {
+      const db = {run: sinon.spy((_, fn) => fn())};
+      const sqlite = new Database(db);
+      const sql = new String("select 1");
+
+      await sqlite.run(sql);
+      expect(db.run.calledOnce).to.be(true);
+      expect(db.run.calledWith("select 1")).to.be(true);
+    });
   });
 
   describe(".each(sql)", () => {

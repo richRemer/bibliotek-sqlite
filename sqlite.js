@@ -35,7 +35,7 @@ export class Database {
     let done = false;
     let sync = synch();
 
-    this.db.each(sql, record, complete);
+    this.db.each(String(sql), record, complete);
 
     while (!done) {
       await sync;
@@ -57,7 +57,7 @@ export class Database {
 
   async exec(sql) {
     return new Promise((resolve, reject) => {
-      this.db.exec(sql, err => {
+      this.db.exec(String(sql), err => {
         if (err) reject(err); else resolve();
       });
     });
@@ -65,19 +65,19 @@ export class Database {
 
   async get(sql, ...params) {
     return new Promise((resolve, reject) => {
-      this.db.get(sql, ...params, (err, row) => {
+      this.db.get(String(sql), ...params, (err, row) => {
         if (err) reject(err); else resolve(row);
       });
     });
   }
 
   prepare(sql) {
-    return new Statement(this.db.prepare(sql));
+    return new Statement(this.db.prepare(String(sql)));
   }
 
   async run(sql) {
     return new Promise((resolve, reject) => {
-      this.db.run(sql, function(err) {
+      this.db.run(String(sql), function(err) {
         if (err) {
           reject(err);
         } else {
